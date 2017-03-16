@@ -93,6 +93,8 @@ public class StatVisitor extends SQLStatBaseVisitor<String>
 	@Override 
 	public String visitSelectAll(SQLStatParser.SelectAllContext ctx) 
 	{ 
+		col_data.add(ctx.STAR().getText());
+
 		return visitChildren(ctx); 
 	}
 

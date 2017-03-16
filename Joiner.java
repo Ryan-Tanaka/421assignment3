@@ -50,16 +50,16 @@ public class Joiner implements Runnable
 			create = create.replaceAll("CREATE", "CREATE TEMPORARY");
 			create = create.replaceAll(table1Name, newTable1Name);
 
-			System.out.println("create temp: " + create);
+			//System.out.println("create temp: " + create);
 			ps2Test = conn2Test.prepareStatement(create);
 			ps2Test.executeUpdate();
 
-			System.out.println("created temp table");
+			//System.out.println("created temp table");
 
 			Statement stmt2 = conn2Test.createStatement();
 
 			final String SELECTALL = "SELECT * FROM " + table1Name;
-			System.out.println("table1name = " + table1Name);
+			//System.out.println("table1name = " + table1Name);
 			psTest = connTest.prepareStatement(SELECTALL);
 			rsTest = psTest.executeQuery();
 
@@ -105,10 +105,10 @@ public class Joiner implements Runnable
 					}					
 				}
 
-				System.out.println(temp);
-				System.out.println(values);
+				//System.out.println(temp);
+				//System.out.println(values);
 				String insert = "INSERT INTO " + newTable1Name + "(" + values + ") Values(" + temp + ")";
-				System.out.println(insert);
+				//System.out.println(insert);
 				stmt2.executeUpdate(insert);
 				temp = "";
 			}
@@ -116,7 +116,7 @@ public class Joiner implements Runnable
 			ps2Test = conn2Test.prepareStatement("SELECT * FROM " + newTable1Name);
 			rs2Test = ps2Test.executeQuery();
 
-			System.out.println("SELECTING FROM TEMP TABLE");
+			//System.out.println("SELECTING FROM TEMP TABLE");
 			String temp1 = "";
 			while(rs2Test.next())
 			{
@@ -129,7 +129,7 @@ public class Joiner implements Runnable
 					}
 				}
 
-				System.out.println(temp1);
+				//System.out.println(temp1);
 				temp1 = "";
 			}
 
@@ -140,17 +140,18 @@ public class Joiner implements Runnable
 
 			String output = "";
 
+			Thread t = Thread.currentThread();
+
 			while(rs2Test.next())
 			{
 				for(int i = 1; i <= numSelectCols; i++)
 				{
-					output += rs2Test.getString(i) + " ";
+					output += rs2Test.getString(i) + " | ";
 				}
 
-				System.out.println(output);
+				System.out.println("[thread " + t.getId() + "] " + output);
 				output = " ";
 			}
-
 		}
 		catch(SQLException sqle)
 		{

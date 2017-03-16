@@ -41,6 +41,10 @@ public class runSQL
 		sqlStat = new StatVisitor();
 		sqlStat.visit(tree);
 
+		System.out.println("col_data: " + sqlStat.col_data.toString());
+		System.out.println("table_data: " + sqlStat.table_data.toString());
+		System.out.println("cond_data: " + sqlStat.cond_data.toString());
+
 		sqlFileQuery = "";
 		is.close();
 
@@ -79,7 +83,7 @@ public class runSQL
 
 				ps = conn.prepareStatement(GETNODESQL);
 				String table1Name = sqlStat.table_data.get(0);
-				System.out.println("tabl1Name = " + table1Name);
+				//System.out.println("tabl1Name = " + table1Name);
 				ps.setString(1, table1Name);
 				rs = ps.executeQuery();
 
@@ -98,7 +102,7 @@ public class runSQL
 				}
 
 				String table2Name = sqlStat.table_data.get(2);
-				System.out.println("tabl2Name = " + table2Name);
+				//System.out.println("tabl2Name = " + table2Name);
 				ps.setString(1, table2Name);
 				rs = ps.executeQuery();
 
@@ -126,9 +130,28 @@ public class runSQL
 				Thread[] joiner_threads;
 				int nodeList1Size = table1_nodes_list.size();
 				int nodeList2Size = table2_nodes_list.size();
-				int numSelectCols = sqlStat.col_data.size();
+				int numSelectCols = 0;
 
-				System.out.println("partition methods : " + t1PartitionMethod + " " + t2PartitionMethod);
+				//System.out.println("table1name : " + table1Name);
+				//System.out.println("table2name : " + table2Name);
+
+				LinkedList<String> tableCols1 = getColumnNames(table1_nodes_list.get(0), table1Name);
+				LinkedList<String> tableCols2 = getColumnNames(table2_nodes_list.get(0), table2Name);
+				
+				//System.out.println(sqlStat.col_data.size() + " is the size");
+
+				//System.out.println("select * gives me : " + sqlStat.col_data.get(0));
+
+				if(sqlStat.col_data.get(0).equals("*"))
+				{
+					numSelectCols = tableCols1.size() + tableCols2.size();
+				}
+				else
+				{
+					numSelectCols = sqlStat.col_data.size();
+				}
+
+				//System.out.println("partition methods : " + t1PartitionMethod + " " + t2PartitionMethod);
 
 				//send out task
 				if(t1PartitionMethod.equals("0") && t2PartitionMethod.equals("0"))
@@ -193,11 +216,11 @@ public class runSQL
 								int offset = (i * nodeList2Size) + j;
 								joiner_threads[offset] = new Thread(new Joiner(table1_nodes_list.get(i), table2_nodes_list.get(j), 
 																				sqlFileQuery, numSelectCols, table1Name));
-								System.out.println("offset : " + offset);
+								//System.out.println("offset : " + offset);
 							}
 						}
 
-						System.out.println("number of threads : " + joiner_threads.length);
+						//System.out.println("number of threads : " + joiner_threads.length);
 
 						for(Thread jd: joiner_threads)
 						{
