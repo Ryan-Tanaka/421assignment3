@@ -3,8 +3,17 @@ import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.ParserRuleContext;
 
-public class StatVisitor<String> extends SQLStatBaseVisitor<String> 
+import java.util.*;
+
+public class StatVisitor extends SQLStatBaseVisitor<String> 
 {
+	// 0    : columns
+	// 1    : table names
+	// 2    : conditions
+	public ArrayList<String> col_data = new ArrayList<String>();
+	public ArrayList<String> table_data = new ArrayList<String>();
+	public ArrayList<String> cond_data = new ArrayList<String>();
+
 	@Override 
 	public String visitLessExp(SQLStatParser.LessExpContext ctx) 
 	{ 
@@ -32,6 +41,13 @@ public class StatVisitor<String> extends SQLStatBaseVisitor<String>
 	@Override 
 	public String visitSelectColNames(SQLStatParser.SelectColNamesContext ctx) 
 	{ 
+		int size = ctx.getChildCount();
+	
+		for(int i = 0; i < size; i++)
+		{
+			col_data.add(ctx.ID(i).getText());
+		}
+
 		return visitChildren(ctx); 
 	}
 
@@ -56,6 +72,13 @@ public class StatVisitor<String> extends SQLStatBaseVisitor<String>
 	@Override 
 	public String visitCond(SQLStatParser.CondContext ctx) 
 	{ 
+		int size = ctx.getChildCount();
+
+		for(int i = 0; i < size; i++)
+		{
+			cond_data.add(ctx.expr(i).getText());
+		}
+
 		return visitChildren(ctx); 
 	}
 
@@ -93,6 +116,13 @@ public class StatVisitor<String> extends SQLStatBaseVisitor<String>
 	@Override 
 	public String visitTableNames(SQLStatParser.TableNamesContext ctx) 
 	{ 
+		int size = ctx.getChildCount();
+
+		for(int i = 0; i < size; i++)
+		{
+			table_data.add(ctx.ID(i).getText());
+		}
+		
 		return visitChildren(ctx); 
 	}
 }
