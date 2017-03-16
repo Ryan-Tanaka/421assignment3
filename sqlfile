@@ -1,4 +1,4 @@
-SELECT S.name, R.date
-FROM orders o, lineitem r
-WHERE S.sid=R.sid and R.day='2009-12-21'
+SELECT *
+FROM orders O, lineitem L
+WHERE O.O_ORDERKEY=L.L_ORDERKEY
 ;
