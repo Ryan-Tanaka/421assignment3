@@ -36,6 +36,7 @@ public class Joiner implements Runnable
 
 			String create = "";
 			String SHOW = "SHOW CREATE TABLE " + table1Name;
+			String newTable1Name = table1Name + "TEMP";
 			psTest = connTest.prepareStatement(SHOW);
 			rsTest = psTest.executeQuery();
 
@@ -45,23 +46,23 @@ public class Joiner implements Runnable
 			}
 
 			create = create.replaceAll("CREATE", "CREATE TEMPORARY");
-			create = create.replaceAll(table1Name, table1Name+"TEMP");
+			create = create.replaceAll(table1Name, newTable1Name);
 
 			System.out.println("create temp: " + create);
 
 			ps2Test = conn2Test.prepareStatement(create);
 			ps2Test.executeUpdate();
 
-			final String LINEITEM = "lineitem";
 			Statement stmt2 = conn2Test.createStatement();
 
-			psTest = connTest.prepareStatement("SELECT * FROM orders");
+			psTest = connTest.prepareStatement("SELECT * FROM ?");
+			psTest.setString(1, table1Name);
 			rsTest = psTest.executeQuery();
 
-			LinkedList<String> colNames = getColumnNames(table1_nodes_list.get(0), "orders");
+			LinkedList<String> colNames = getColumnNames(node1, table1Name);
 
 			int numCols = colNames.size();
-			LinkedList<String> dataTypes = getDataTypes(table1_nodes_list.get(0), "orders", numCols);
+			LinkedList<String> dataTypes = getDataTypes(node1, table1Name, numCols);
 
 			String temp = "";
 			String values = "";
@@ -99,15 +100,17 @@ public class Joiner implements Runnable
 						temp+= ", ";
 					}					
 				}
+
 				System.out.println(temp);
 				System.out.println(values);
-				String insert = "INSERT INTO ordersTEMP (" + values + ") Values(" + temp + ")";
+				String insert = "INSERT INTO " + newTable1Name + "(" + values + ") Values(" + temp + ")";
 				System.out.println(insert);
 				stmt2.executeUpdate(insert);
 				temp = "";
 			}
 
-			ps2Test = conn2Test.prepareStatement("SELECT * FROM ordersTEMP");
+			ps2Test = conn2Test.prepareStatement("SELECT * FROM ?");
+			ps2Test.setString(1, newTable1Name);
 			rs2Test = ps2Test.executeQuery();
 
 			System.out.println("SELECTING FROM TEMP TABLE");
@@ -126,6 +129,8 @@ public class Joiner implements Runnable
 				System.out.println(temp1);
 				temp1 = "";
 			}
+
+			
 
 		}
 		catch(SQLException sqle)
