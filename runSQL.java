@@ -2,8 +2,9 @@ import java.io.*;
 import java.util.*;
 import java.sql.*;
 
-import org.antlr.v4.runtime;
-import org.antlr.v4.runtime.tree;
+import org.antlr.v4.*;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
 
 public class runSQL 
 {
@@ -19,42 +20,18 @@ public class runSQL
 		if(inputFile != null)
 		{
 			is = new FileInputStream(inputFile);
-		} 
+		}
 
-	}
+		ANTLRInputStream input = new ANTLRInputStream(is);
+		SQLStatLexer lexer = new SQLStatLexer(input);
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		SQLStatParser parser = new SQLStatParser(tokens);
+		ParseTree tree = parser.stat();
+		StatVisitor sqlStat = new StatVisitor();
+		sqlStat.visit(tree);
 
-	/**
-	* Get node corresponding to the catalogdb node.
-	*
-	* @param filename string containing filename of clustercfg
-	* @return node corresponding to catalog node
-	*/
-	public static node getNode(String filename, String nodename) throws IOException
-	{
-		String hostname, username, password, driver;
-		Properties connProps = new Properties();
-		FileInputStream fis = new FileInputStream(filename);
-		node obtainedNode = new node();
-		hostname = username = password = driver = "";
+		System.out.println(tree.toStringTree(parser));
 
-		connProps.load(fis);
-
-		hostname = connProps.getProperty(nodename + ".hostname");
-		username = connProps.getProperty(nodename + ".username");
-		password = connProps.getProperty(nodename + ".passwd");
-        driver   = connProps.getProperty(nodename + ".driver");
-
-        obtainedNode.setHostname(hostname);
-        obtainedNode.setUsername(username);
-        obtainedNode.setPassword(password);
-       	obtainedNode.setDriver(driver);
-
-        System.out.println("DEBUG OUTPUT: " + nodename +" [" + obtainedNode.getHostname() + 
-        					", " + obtainedNode.getUsername() + ", " + obtainedNode.getPassword() + "]");
-		
-		fis.close();
-
-		return obtainedNode;
 	}
 }
 
