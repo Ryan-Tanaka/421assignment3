@@ -16,6 +16,8 @@ public class runSQL
 	private static ArrayList<node> table1_nodes_list;
 	private static ArrayList<node> table2_nodes_list;
 
+	private static String sqlFileQuery;
+
 	public static void main(String[] args) throws Exception
 	{
 		//get antlr to extract the data i need
@@ -38,6 +40,18 @@ public class runSQL
 		ParseTree tree = parser.stat();
 		sqlStat = new StatVisitor();
 		sqlStat.visit(tree);
+
+		sqlFileQuery = "";
+		is.close();
+
+		is = new FileInputStream(inputFile);
+
+		while(is.available() > 0)
+		{
+			sqlFileQuery += (char)is.read();
+		}
+
+		System.out.println(sqlFileQuery);
 
 		//find out where partitions are stored 
 		catalogNode = getNode(args[0], "catalog");
@@ -78,7 +92,7 @@ public class runSQL
 					temp.setUsername(rs.getString(3));
 					temp.setPassword(rs.getString(4));
 					temp.setNodeNum(Integer.parseInt(rs.getString(5)));
-					t1PartitionMethod = rs.getString(6); // <- little repetitive
+					t1PartitionMethod = rs.getString(6); // <- yes this a little repetitive
 
 					table1_nodes_list.add(temp);
 				}
@@ -109,115 +123,93 @@ public class runSQL
 				for(node n: table2_nodes_list)
 					n.printNode();
 
-				System.out.println("partition methods : " + t1PartitionMethod + " and " + t2PartitionMethod);
+				Thread[] joiner_threads;
+				int nodeList1Size = table1_nodes_list.size();
+				int nodeList2Size = table2_nodes_list.size();
+				int numSelectCols = sqlStat.col_data.size();
 
-				Connection connTest = DriverManager.getConnection(table1_nodes_list.get(0).getHostname(),
-												  				  table1_nodes_list.get(0).getUsername(),
-												   				  table1_nodes_list.get(0).getPassword());
+				System.out.println("partition methods : " + t1PartitionMethod + " " + t2PartitionMethod);
 
-				Connection conn2Test = DriverManager.getConnection(table2_nodes_list.get(0).getHostname(),
-												   				   table2_nodes_list.get(0).getUsername(),
-												   				   table2_nodes_list.get(0).getPassword());
-
-				PreparedStatement psTest = null;
-				PreparedStatement ps2Test = null;
-				ResultSet rsTest = null;
-				ResultSet rs2Test = null;
-
-				String create = "";
-				final String ORDERS = "orders";
-				 String SHOW = "SHOW CREATE TABLE " + ORDERS;
-				psTest = connTest.prepareStatement(SHOW);
-				rsTest = psTest.executeQuery();
-
-				if(rsTest.next())
+				//send out task
+				if(t1PartitionMethod.equals("0") && t2PartitionMethod.equals("0"))
 				{
-					create = rsTest.getString(2);
+					//just use 1 pair of nodes
+					Thread joinerThread = new Thread(new Joiner(table1_nodes_list.get(0), table2_nodes_list.get(0), 
+																sqlFileQuery, numSelectCols, table1Name));
+
+					joinerThread.start();
+					joinerThread.join();
 				}
-
-				create = create.replaceAll("CREATE", "CREATE TEMPORARY");
-				create = create.replaceAll("orders", "ordersTEMP");
-
-				System.out.println("create temp: " + create);
-
-				ps2Test = conn2Test.prepareStatement(create);
-				ps2Test.executeUpdate();
-
-				final String LINEITEM = "lineitem";
-				Statement stmt2 = conn2Test.createStatement();
-
-				psTest = connTest.prepareStatement("SELECT * FROM orders");
-				rsTest = psTest.executeQuery();
-
-				LinkedList<String> colNames = getColumnNames(table1_nodes_list.get(0), "orders");
-
-				int numCols = colNames.size();
-				LinkedList<String> dataTypes = getDataTypes(table1_nodes_list.get(0), "orders", numCols);
-
-				String temp = "";
-				String values = "";
-
-				for(int i = 0; i < numCols; i++)
+				else
 				{
-					values += colNames.get(i);
-					if(i < numCols - 1)
+					if(t1PartitionMethod.equals("0"))  //at least 1 has partition method
 					{
-						values += ", ";
-					}
-				}
+						joiner_threads = new Thread[nodeList2Size];
 
-				while(rsTest.next())
-				{
-					for(int i = 1; i <= numCols; i++)
-					{
-						String dtype = dataTypes.get(i - 1);
-
-						if(dtype.equalsIgnoreCase("var") || dtype.equalsIgnoreCase("varchar") || 
-							dtype.equalsIgnoreCase("date") || dtype.equalsIgnoreCase("char"))
+						for(int i = 0; i < nodeList2Size; i++)
 						{
-							temp += "'";
-						}
-						temp += rsTest.getString(i);
-						
-						if(dtype.equalsIgnoreCase("var") || dtype.equalsIgnoreCase("varchar") || 
-							dtype.equalsIgnoreCase("date") || dtype.equalsIgnoreCase("char"))
-						{
-							temp += "'";
+							joiner_threads[i] = new Thread(new Joiner(table2_nodes_list.get(i), table1_nodes_list.get(0), 
+																		sqlFileQuery, numSelectCols, table1Name));
 						}
 
-						if(i <= numCols - 1)
+						for(Thread t : joiner_threads)
 						{
-							temp+= ", ";
-						}					
-					}
-					System.out.println(temp);
-					System.out.println(values);
-					String insert = "INSERT INTO ordersTEMP (" + values + ") Values(" + temp + ")";
-					System.out.println(insert);
-					stmt2.executeUpdate(insert);
-					temp = "";
-				}
+							t.start();
+						}
 
-				ps2Test = conn2Test.prepareStatement("SELECT * FROM ordersTEMP");
-				rs2Test = ps2Test.executeQuery();
-
-				System.out.println("SELECTING FROM TEMP TABLE");
-				String temp1 = "";
-				while(rs2Test.next())
-				{
-					for(int i = 1; i <= numCols; i++)
-					{
-						temp1 += rs2Test.getString(i);
-						if(i <= numCols - 1)
+						for(Thread t : joiner_threads)
 						{
-							temp1+= ", ";
+							t.join();
 						}
 					}
+					else if(t2PartitionMethod.equals("0"))
+					{
+						joiner_threads = new Thread[nodeList1Size];
 
-					System.out.println(temp1);
-					temp1 = "";
+						for(int i = 0; i < nodeList1Size; i++)
+						{
+							joiner_threads[i] = new Thread(new Joiner(table1_nodes_list.get(i), table2_nodes_list.get(0), 
+																		sqlFileQuery, numSelectCols, table1Name));
+						}
+
+						for(Thread t : joiner_threads)
+						{
+							t.start();
+						}
+
+						for(Thread t : joiner_threads)
+						{
+							t.join();
+						}
+					}
+					else  //both have range or hash partition in this case
+					{
+						joiner_threads = new Thread[nodeList1Size * nodeList2Size];
+
+						for(int i = 0; i < nodeList1Size; i++)
+						{
+							for(int j = 0; j < nodeList2Size; j++)
+							{
+								int offset = (i * nodeList2Size) + j;
+								joiner_threads[offset] = new Thread(new Joiner(table1_nodes_list.get(i), table2_nodes_list.get(j), 
+																				sqlFileQuery, numSelectCols, table1Name));
+								System.out.println("offset : " + offset);
+							}
+						}
+
+						System.out.println("number of threads : " + joiner_threads.length);
+
+						for(Thread jd: joiner_threads)
+						{
+							jd.start();
+						}
+
+						for(Thread jdj: joiner_threads)
+						{
+							jdj.join();
+						}
+					}
 				}
-
 			}
 			catch(SQLException sqle)
 			{
@@ -228,9 +220,6 @@ public class runSQL
 		{
 
 		}
-
-
-
 	}
 
 	/**

@@ -7,13 +7,15 @@ public class Joiner implements Runnable
 	private node node2;
 	private String query;
 	private String table1Name;
+	private int numSelectCols;
 
-	public Joiner(node node1, node node2)
+	public Joiner(node node1, node node2, String query, int numSelectCols, String table1Name)
 	{
 		this.node1 = node1;
 		this.node2 = node2;
-		this.query = "";
-		this.table1Name = "";
+		this.query = new String(query);
+		this.table1Name = table1Name;
+		this.numSelectCols = numSelectCols;
 	}
 
 	@Override
@@ -49,14 +51,16 @@ public class Joiner implements Runnable
 			create = create.replaceAll(table1Name, newTable1Name);
 
 			System.out.println("create temp: " + create);
-
 			ps2Test = conn2Test.prepareStatement(create);
 			ps2Test.executeUpdate();
 
+			System.out.println("created temp table");
+
 			Statement stmt2 = conn2Test.createStatement();
 
-			psTest = connTest.prepareStatement("SELECT * FROM ?");
-			psTest.setString(1, table1Name);
+			final String SELECTALL = "SELECT * FROM " + table1Name;
+			System.out.println("table1name = " + table1Name);
+			psTest = connTest.prepareStatement(SELECTALL);
 			rsTest = psTest.executeQuery();
 
 			LinkedList<String> colNames = getColumnNames(node1, table1Name);
@@ -109,8 +113,7 @@ public class Joiner implements Runnable
 				temp = "";
 			}
 
-			ps2Test = conn2Test.prepareStatement("SELECT * FROM ?");
-			ps2Test.setString(1, newTable1Name);
+			ps2Test = conn2Test.prepareStatement("SELECT * FROM " + newTable1Name);
 			rs2Test = ps2Test.executeQuery();
 
 			System.out.println("SELECTING FROM TEMP TABLE");
@@ -130,7 +133,23 @@ public class Joiner implements Runnable
 				temp1 = "";
 			}
 
-			
+			query = query.replace(table1Name, newTable1Name);
+			System.out.println("new query: " + query);
+			ps2Test = conn2Test.prepareStatement(query);
+			rs2Test = ps2Test.executeQuery();
+
+			String output = "";
+
+			while(rs2Test.next())
+			{
+				for(int i = 1; i <= numSelectCols; i++)
+				{
+					output += rs2Test.getString(i) + " ";
+				}
+
+				System.out.println(output);
+				output = " ";
+			}
 
 		}
 		catch(SQLException sqle)
