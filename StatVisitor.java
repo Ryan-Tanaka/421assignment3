@@ -14,6 +14,8 @@ public class StatVisitor extends SQLStatBaseVisitor<String>
 	public ArrayList<String> table_data = new ArrayList<String>();
 	public ArrayList<String> cond_data = new ArrayList<String>();
 
+	public boolean requireJoin = false;
+
 	@Override 
 	public String visitLessExp(SQLStatParser.LessExpContext ctx) 
 	{ 
@@ -117,6 +119,11 @@ public class StatVisitor extends SQLStatBaseVisitor<String>
 	public String visitTableNames(SQLStatParser.TableNamesContext ctx) 
 	{ 
 		int size = ctx.getChildCount();
+
+		if(size > 2)
+		{
+			requireJoin = true;
+		}
 
 		for(int i = 0; i < size; i++)
 		{

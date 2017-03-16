@@ -18,10 +18,10 @@ from_clause : FROM tnames # fromTnames
 where_clause : WHERE conditions # whereConditions
              ; 
      
-colnames: ID+ # colNames 
+colnames: ID+ # selectColNames 
         ;
 
-tnames : ID+ # tNames  
+tnames : ID+ # tableNames  
        ;
 
 conditions: expr+ # cond  

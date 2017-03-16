@@ -1,7 +1,7 @@
-log.driver=com.ibm.db2.jcc.DB2Driver
-catalog.hostname=jdbc:db2://10.0.0.3:50001/mycatdb
-catalog.username=db2inst1
-catalog.passwd=mypasswd
+catalog.driver=com.mysql.jdbc.Driver
+catalog.hostname=jdbc:mysql://localhost:3306/catalog
+catalog.username=user1
+catalog.passwd=user1
 
 localnode.driver=com.ibm.db2.jcc.DB2Driver
 localnode.hostname=jdbc:db2://10.0.0.3:50001/mydb1
