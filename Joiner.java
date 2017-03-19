@@ -23,6 +23,7 @@ public class Joiner implements Runnable
 	{
 		try
 		{
+			//get connection to both nodes that contain the join tables
 			Connection connTest = DriverManager.getConnection(node1.getHostname(),
 											  				  node1.getUsername(),
 											   				  node1.getPassword());
@@ -37,8 +38,8 @@ public class Joiner implements Runnable
 			ResultSet rs2Test = null;
 
 			String create = "";
-			String SHOW = "SHOW CREATE TABLE " + table1Name;
-			String newTable1Name = table1Name + "TEMP";
+			String SHOW = "SHOW CREATE TABLE " + table1Name; //grab create table statement so that we can
+			String newTable1Name = table1Name + "TEMP";      //create a temporary table in the other node
 			psTest = connTest.prepareStatement(SHOW);
 			rsTest = psTest.executeQuery();
 
@@ -47,18 +48,19 @@ public class Joiner implements Runnable
 				create = rsTest.getString(2);
 			}
 
+			//alter DDL to say "create temporary table" instead of "create table"
 			create = create.replaceAll("CREATE", "CREATE TEMPORARY");
 			create = create.replaceAll(table1Name, newTable1Name);
 
 			//System.out.println("create temp: " + create);
-			ps2Test = conn2Test.prepareStatement(create);
+			ps2Test = conn2Test.prepareStatement(create); //create temporary table in the second node 
 			ps2Test.executeUpdate();
 
 			//System.out.println("created temp table");
 
 			Statement stmt2 = conn2Test.createStatement();
 
-			final String SELECTALL = "SELECT * FROM " + table1Name;
+			final String SELECTALL = "SELECT * FROM " + table1Name; 
 			//System.out.println("table1name = " + table1Name);
 			psTest = connTest.prepareStatement(SELECTALL);
 			rsTest = psTest.executeQuery();
