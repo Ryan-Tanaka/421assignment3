@@ -21,6 +21,39 @@ public class runSQL
 
 	public static void main(String[] args) throws Exception
 	{
+		Properties connProps = new Properties();
+		String tablename = null;
+		String localnode = null;
+		connProps.load(new FileInputStream(args[0]));
+
+		tablename = connProps.getProperty("tablename");
+		System.out.println("tablename : " + tablename);
+		localnode = connProps.getProperty("localnode.hostname");
+		System.out.println("localnode hostname : " + localnode);
+
+		if(tablename == null) //execute runSQL or loadCSV
+		{
+			if(localnode != null) // execute runSQL
+			{
+				runSQL sqlRunner = new runSQL();
+				sqlRunner.executeRunSQL(args);
+			}
+			else // execute loadCSV
+			{
+				loadCSV csvLoader = new loadCSV();
+				csvLoader.executeLoadCSV(args);
+			}
+		}
+		else //execute runDDL
+		{
+			runDDL ddlRunner = new runDDL();
+			ddlRunner.executeRunDDL(args);
+		}
+
+	}
+
+	public static void executeRunSQL(String[] args) throws Exception
+	{
 		//get antlr to extract the data i need
 		String inputFile = null;
 		if(args.length > 0) 
