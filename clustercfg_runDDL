@@ -1,0 +1,16 @@
+catalog.driver=com.mysql.jdbc.Driver
+catalog.hostname=jdbc:mysql://localhost:3306/catalog
+catalog.username=user1
+catalog.passwd=user1
+
+numnodes=2
+
+node1.driver=com.mysql.jdbc.Driver
+node1.hostname=jdbc:mysql://localhost:3306/ics421
+node1.username=user1
+node1.passwd=user1
+
+node2.driver=com.mysql.jdbc.Driver
+node2.hostname=jdbc:mysql://localhost:3306/ics421.2
+node2.username=user1
+node2.passwd=user1
