@@ -1,4 +1,4 @@
-SELECT *
+SELECT * 
 FROM orders O, lineitem L
 WHERE O.O_ORDERKEY=L.L_ORDERKEY
 ;
