@@ -164,9 +164,10 @@ public class runDDL
 				username = nodes[targetNode].getUsername();
 				password = nodes[targetNode].getPassword();
                 
-				conn = DriverManager.getConnection(hostname + ";create=true", username, password);
+				conn = DriverManager.getConnection(hostname + "?useSSL=false", username, password);
 				s = conn.createStatement();
 				s.execute(ddl);
+                conn.setAutoCommit(false);
 				conn.commit();
 
                 System.out.println("[" + hostname + "]: " + ddlFileName + " success");
@@ -193,7 +194,8 @@ public class runDDL
 
                 if(firstThreeWords[0].equalsIgnoreCase("create"))
                 {
-                    conn = DriverManager.getConnection(hostname, username, password);
+                    conn = DriverManager.getConnection(hostname + "?useSSL=false", username, password);
+                    conn.setAutoCommit(false);
                     updateStmt = conn.prepareStatement("insert into dtables values(?,?,?,?,?,?,?,?,?,?)");
 
                     updateStmt.setString(1, firstThreeWords[2]);              //tname
@@ -216,7 +218,8 @@ public class runDDL
                 }
                 else 
                 {
-                    conn = DriverManager.getConnection(hostname, username, password);
+                    conn = DriverManager.getConnection(hostname + "?useSSL=false", username, password);
+                    conn.setAutoCommit(false);
                     deleteStmt = conn.prepareStatement("delete from dtables where tname = ? and nodeurl = ?");
 
                     deleteStmt.setString(1, firstThreeWords[2].toUpperCase());

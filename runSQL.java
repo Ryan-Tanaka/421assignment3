@@ -27,9 +27,9 @@ public class runSQL
 		connProps.load(new FileInputStream(args[0]));
 
 		tablename = connProps.getProperty("tablename");
-		System.out.println("tablename : " + tablename);
+		//System.out.println("tablename : " + tablename);
 		localnode = connProps.getProperty("localnode.hostname");
-		System.out.println("localnode hostname : " + localnode);
+		//System.out.println("localnode hostname : " + localnode);
 
 		if(tablename == null) //execute runSQL or loadCSV
 		{
@@ -38,16 +38,16 @@ public class runSQL
 				runSQL sqlRunner = new runSQL();
 				sqlRunner.executeRunSQL(args);
 			}
-			else // execute loadCSV
+			else // execute runDDL
 			{
-				loadCSV csvLoader = new loadCSV();
-				csvLoader.executeLoadCSV(args);
+				runDDL ddlRunner = new runDDL();
+				ddlRunner.executeRunDDL(args);				
 			}
 		}
-		else //execute runDDL
+		else //execute loadCSV
 		{
-			runDDL ddlRunner = new runDDL();
-			ddlRunner.executeRunDDL(args);
+			loadCSV csvLoader = new loadCSV();
+			csvLoader.executeLoadCSV(args);
 		}
 
 	}
