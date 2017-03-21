@@ -41,9 +41,9 @@ public class runSQL
 		sqlStat = new StatVisitor();
 		sqlStat.visit(tree);
 
-		System.out.println("col_data: " + sqlStat.col_data.toString());
-		System.out.println("table_data: " + sqlStat.table_data.toString());
-		System.out.println("cond_data: " + sqlStat.cond_data.toString());
+		//System.out.println("col_data: " + sqlStat.col_data.toString());
+		//System.out.println("table_data: " + sqlStat.table_data.toString());
+		//System.out.println("cond_data: " + sqlStat.cond_data.toString());
 
 		sqlFileQuery = "";
 		is.close();
@@ -55,7 +55,7 @@ public class runSQL
 			sqlFileQuery += (char)is.read();
 		}
 
-		System.out.println(sqlFileQuery);
+		//System.out.println(sqlFileQuery);
 
 		//find out where partitions are stored 
 		catalogNode = getNode(args[0], "catalog");
@@ -77,7 +77,7 @@ public class runSQL
 				String t1PartitionMethod = "";
 				String t2PartitionMethod = "";
 
-				conn = DriverManager.getConnection(catalogNode.getHostname(),
+				conn = DriverManager.getConnection(catalogNode.getHostname() + "?useSSL=false",
 												   catalogNode.getUsername(),
 												   catalogNode.getPassword());
 
@@ -120,12 +120,13 @@ public class runSQL
 					table2_nodes_list.add(temp);
 				}
 
-				//DBO
+				/*
 				for(node n: table1_nodes_list)
 					n.printNode();
 
 				for(node n: table2_nodes_list)
 					n.printNode();
+				*/
 
 				Thread[] joiner_threads;
 				int nodeList1Size = table1_nodes_list.size();
@@ -208,6 +209,8 @@ public class runSQL
 					else  //both have range or hash partition in this case
 					{
 						joiner_threads = new Thread[nodeList1Size * nodeList2Size];
+
+						System.out.println("HERHERHERHERHEHREHHREHREWJREWKLJRKL:");
 
 						for(int i = 0; i < nodeList1Size; i++)
 						{
@@ -316,7 +319,7 @@ public class runSQL
 
 		try
 		{
-			conn = DriverManager.getConnection(	targetNode.getHostname(),
+			conn = DriverManager.getConnection(	targetNode.getHostname() + "?useSSL=false",
 												targetNode.getUsername(),
 												targetNode.getPassword());
 
@@ -335,12 +338,14 @@ public class runSQL
 				conn.close();
 
 			//DEBUG
+			/*
 			System.out.println("DEBUG OUTPUT: column_names from [" + targetNode.getHostname() + "]");
 
 			for(String s : column_names)
 				System.out.print(s + " ");
 
 			System.out.println("");
+			*/
 
 			return column_names;
 		}
@@ -367,7 +372,7 @@ public class runSQL
 
 		try
 		{
-			conn = DriverManager.getConnection(	targetNode.getHostname(),
+			conn = DriverManager.getConnection(	targetNode.getHostname() + "?useSSL=false",
 												targetNode.getUsername(),
 												targetNode.getPassword());
 
@@ -386,12 +391,14 @@ public class runSQL
 				conn.close();
 
 			//DEBUG
+			/*
 			System.out.println("DEBUG OUTPUT: data_types from [" + targetNode.getHostname() + "]");
 
 			for(String s : data_types)
 				System.out.print(s + " ");
 
 			System.out.println("");
+			*/
 
 			return data_types;
 		}

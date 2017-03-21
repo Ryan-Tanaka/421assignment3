@@ -5,6 +5,8 @@ public class Joiner implements Runnable
 {
 	private node node1;
 	private node node2;
+	private Connection connTest;
+	private Connection conn2Test;
 	private String query;
 	private String table1Name;
 	private int numSelectCols;
@@ -13,6 +15,8 @@ public class Joiner implements Runnable
 	{
 		this.node1 = node1;
 		this.node2 = node2;
+		this.connTest = null;
+		this.conn2Test = null;
 		this.query = new String(query);
 		this.table1Name = table1Name;
 		this.numSelectCols = numSelectCols;
@@ -23,14 +27,19 @@ public class Joiner implements Runnable
 	{
 		try
 		{
+			long tid = Thread.currentThread().getId();
+			System.out.println("Thread " + tid + ": start");
+
 			//get connection to both nodes that contain the join tables
-			Connection connTest = DriverManager.getConnection(node1.getHostname(),
+			connTest = DriverManager.getConnection(node1.getHostname() + "?useSSL=false",
 											  				  node1.getUsername(),
 											   				  node1.getPassword());
 
-			Connection conn2Test = DriverManager.getConnection(node2.getHostname(),
+			conn2Test = DriverManager.getConnection(node2.getHostname() + "?useSSL=false",
 											   				   node2.getUsername(),
 											   				   node2.getPassword());
+
+			System.out.println("Thread " + tid + ": connected to both nodes");
 
 			PreparedStatement psTest = null;
 			PreparedStatement ps2Test = null;
@@ -40,13 +49,20 @@ public class Joiner implements Runnable
 			String create = "";
 			String SHOW = "SHOW CREATE TABLE " + table1Name; //grab create table statement so that we can
 			String newTable1Name = table1Name + "TEMP";      //create a temporary table in the other node
+
+			System.out.println("Thread " + tid + ": getting create table statement");
+
 			psTest = connTest.prepareStatement(SHOW);
 			rsTest = psTest.executeQuery();
+
+			System.out.println("Thread " + tid + ": grabbed create table statement");
 
 			if(rsTest.next())
 			{
 				create = rsTest.getString(2);
 			}
+			else return;
+
 
 			//alter DDL to say "create temporary table" instead of "create table"
 			create = create.replaceAll("CREATE", "CREATE TEMPORARY");
@@ -56,6 +72,8 @@ public class Joiner implements Runnable
 			ps2Test = conn2Test.prepareStatement(create); //create temporary table in the second node 
 			ps2Test.executeUpdate();
 
+			System.out.println("Thread " + tid + ": created temp table in other node");
+
 			//System.out.println("created temp table");
 
 			Statement stmt2 = conn2Test.createStatement();
@@ -64,6 +82,8 @@ public class Joiner implements Runnable
 			//System.out.println("table1name = " + table1Name);
 			psTest = connTest.prepareStatement(SELECTALL);
 			rsTest = psTest.executeQuery();
+
+			System.out.println("Thread " + tid + ": got all lines from " + table1Name);
 
 			LinkedList<String> colNames = getColumnNames(node1, table1Name);
 
@@ -81,6 +101,8 @@ public class Joiner implements Runnable
 					values += ", ";
 				}
 			}
+
+			System.out.println("made here in " + Thread.currentThread().getId());
 
 			while(rsTest.next())
 			{
@@ -136,13 +158,11 @@ public class Joiner implements Runnable
 			}
 
 			query = query.replace(table1Name, newTable1Name);
-			System.out.println("new query: " + query);
+			//System.out.println("new query: " + query);
 			ps2Test = conn2Test.prepareStatement(query);
 			rs2Test = ps2Test.executeQuery();
 
 			String output = "";
-
-			Thread t = Thread.currentThread();
 
 			while(rs2Test.next())
 			{
@@ -151,9 +171,11 @@ public class Joiner implements Runnable
 					output += rs2Test.getString(i) + " | ";
 				}
 
-				System.out.println("[thread " + t.getId() + "] " + output);
+				System.out.println("[thread " + tid + "] " + output);
 				output = " ";
 			}
+
+			System.out.println("Thread " + tid + ": end");
 		}
 		catch(SQLException sqle)
 		{
@@ -179,6 +201,8 @@ public class Joiner implements Runnable
 	        //e.printStackTrace(System.err);
 	        e = e.getNextException();
 	    }
+
+	    System.out.println("ERROR FROM: " + Thread.currentThread().getId());
 	}
 
 	/**
@@ -197,7 +221,7 @@ public class Joiner implements Runnable
 
 		try
 		{
-			conn = DriverManager.getConnection(	targetNode.getHostname(),
+			conn = DriverManager.getConnection(	targetNode.getHostname() + "?useSSL=false",
 												targetNode.getUsername(),
 												targetNode.getPassword());
 
@@ -216,12 +240,14 @@ public class Joiner implements Runnable
 				conn.close();
 
 			//DEBUG
+			/*
 			System.out.println("DEBUG OUTPUT: column_names from [" + targetNode.getHostname() + "]");
 
 			for(String s : column_names)
 				System.out.print(s + " ");
 
 			System.out.println("");
+			*/
 
 			return column_names;
 		}
@@ -248,7 +274,7 @@ public class Joiner implements Runnable
 
 		try
 		{
-			conn = DriverManager.getConnection(	targetNode.getHostname(),
+			conn = DriverManager.getConnection(	targetNode.getHostname() + "?useSSL=false",
 												targetNode.getUsername(),
 												targetNode.getPassword());
 
@@ -267,12 +293,14 @@ public class Joiner implements Runnable
 				conn.close();
 
 			//DEBUG
+			/*
 			System.out.println("DEBUG OUTPUT: data_types from [" + targetNode.getHostname() + "]");
 
 			for(String s : data_types)
 				System.out.print(s + " ");
 
 			System.out.println("");
+			*/
 
 			return data_types;
 		}
