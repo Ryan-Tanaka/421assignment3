@@ -17,6 +17,7 @@ public class runSQL
 	private static ArrayList<node> table2_nodes_list;
 
 	private static String sqlFileQuery;
+	private static String table1Name;
 
 	public static void main(String[] args) throws Exception
 	{
@@ -82,7 +83,7 @@ public class runSQL
 												   catalogNode.getPassword());
 
 				ps = conn.prepareStatement(GETNODESQL);
-				String table1Name = sqlStat.table_data.get(0);
+				table1Name = sqlStat.table_data.get(0);
 				//System.out.println("tabl1Name = " + table1Name);
 				ps.setString(1, table1Name);
 				rs = ps.executeQuery();
@@ -140,7 +141,6 @@ public class runSQL
 				LinkedList<String> tableCols2 = getColumnNames(table2_nodes_list.get(0), table2Name);
 				
 				//System.out.println(sqlStat.col_data.size() + " is the size");
-
 				//System.out.println("select * gives me : " + sqlStat.col_data.get(0));
 
 				if(sqlStat.col_data.get(0).equals("*"))
@@ -151,7 +151,6 @@ public class runSQL
 				{
 					numSelectCols = sqlStat.col_data.size();
 				}
-
 				//System.out.println("partition methods : " + t1PartitionMethod + " " + t2PartitionMethod);
 
 				//send out task
@@ -210,8 +209,6 @@ public class runSQL
 					{
 						joiner_threads = new Thread[nodeList1Size * nodeList2Size];
 
-						System.out.println("HERHERHERHERHEHREHHREHREWJREWKLJRKL:");
-
 						for(int i = 0; i < nodeList1Size; i++)
 						{
 							for(int j = 0; j < nodeList2Size; j++)
@@ -222,7 +219,6 @@ public class runSQL
 								//System.out.println("offset : " + offset);
 							}
 						}
-
 						//System.out.println("number of threads : " + joiner_threads.length);
 
 						for(Thread jd: joiner_threads)
@@ -239,12 +235,70 @@ public class runSQL
 			}
 			catch(SQLException sqle)
 			{
-				printSQLException(sqle);
+				System.out.println(inputFile + " failed");
 			}
 		}
 		else
 		{
+			try
+			{
+				conn = DriverManager.getConnection(catalogNode.getHostname() + "?useSSL=false",
+												   catalogNode.getUsername(),
+												   catalogNode.getPassword());
 
+				ps = conn.prepareStatement(GETNODESQL);
+
+				String table1Name = sqlStat.table_data.get(0);
+				//System.out.println("tabl1Name = " + table1Name);
+				ps.setString(1, table1Name);
+				rs = ps.executeQuery();
+
+				while(rs.next())
+				{
+					node temp = new node();
+
+					temp.setDriver(rs.getString(1));
+					temp.setHostname(rs.getString(2));
+					temp.setUsername(rs.getString(3));
+					temp.setPassword(rs.getString(4));
+					temp.setNodeNum(Integer.parseInt(rs.getString(5)));
+
+					table1_nodes_list.add(temp);
+				}
+
+				Thread[] threads = new Thread[table1_nodes_list.size()];
+
+				for(int i = 0; i < table1_nodes_list.size(); i++)
+				{
+					threads[i] = new Thread(new sqlRunnable(table1_nodes_list.get(i), sqlFileQuery, table1Name));
+				}
+
+				for(Thread t : threads)
+				{
+					t.start();
+				}
+
+				for(Thread th : threads)
+				{
+					th.join();
+				}
+
+				for(node n : table1_nodes_list)
+				{
+					if(n.getStatus() == 0)
+					{
+						System.out.println("[" + n.getHostname() + "] " + inputFile + " failed");
+					}
+					else
+					{
+						System.out.println("[" + n.getHostname() + "] " + inputFile + " success");
+					}
+				}
+			}
+			catch(SQLException sqle)
+			{
+				printSQLException(sqle);
+			}
 		}
 	}
 
@@ -274,9 +328,11 @@ public class runSQL
         obtainedNode.setPassword(password);
        	obtainedNode.setDriver(driver);
 
+       	/*
         System.out.println("DEBUG OUTPUT: " + nodename +" [" + obtainedNode.getHostname() + 
         					", " + obtainedNode.getUsername() + ", " + obtainedNode.getPassword() + "]");
-		
+		*/
+
 		fis.close();
 
 		return obtainedNode;
