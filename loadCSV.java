@@ -62,7 +62,7 @@ public class loadCSV
 				case "hash"			: partitionMethod = HASH; break;
 			}
 
-			conn = DriverManager.getConnection( catalogNode.getHostname(),
+			conn = DriverManager.getConnection( catalogNode.getHostname() + "?useSSL=false",
 												catalogNode.getUsername(),
 												catalogNode.getPassword());
 
@@ -119,8 +119,8 @@ public class loadCSV
 					numnodes = Integer.parseInt(connProps.getProperty("numnodes"));
 					partitionColumnName = connProps.getProperty("partition.column");
 
-					System.out.println("DEBUG OUTPUT: numNodes = " + numnodes);
-					System.out.println("DEBUG OUTPUT: partitionColumnName = " + partitionColumnName);
+					//System.out.println("DEBUG OUTPUT: numNodes = " + numnodes);
+					//System.out.println("DEBUG OUTPUT: partitionColumnName = " + partitionColumnName);
 
 					for(int i = 1; i <= numnodes; i++)
 					{
@@ -196,7 +196,7 @@ public class loadCSV
 		//get data types
 		data_types = getDataTypes(nodes.getFirst(), tablename, numCols);
 
-		System.out.println("DEBUG OUTPUT: numCols = " + numCols);
+		//System.out.println("DEBUG OUTPUT: numCols = " + numCols);
 
 		insertSQL = buildPreparedStatementString(numCols, tablename);
 
@@ -207,7 +207,7 @@ public class loadCSV
 			{
 				try
 				{
-					connection_list.add(DriverManager.getConnection( n.getHostname(),
+					connection_list.add(DriverManager.getConnection( n.getHostname() + "?useSSL=false",
 																	 n.getUsername(),
 																	 n.getPassword()));
 
@@ -361,7 +361,7 @@ public class loadCSV
 		//get data types
 		data_types = new ArrayList<String>(getDataTypes(nodes.get(0), tablename, numCols));
 
-		System.out.println("DEBUG OUTPUT: numCols = " + numCols);
+		//System.out.println("DEBUG OUTPUT: numCols = " + numCols);
 
 		insertSQL = buildPreparedStatementString(numCols, tablename);
 
@@ -380,7 +380,7 @@ public class loadCSV
 			{
 				try
 				{
-					connection_list.add(DriverManager.getConnection( n.getHostname(),
+					connection_list.add(DriverManager.getConnection( n.getHostname() + "?useSSL=false",
 																	 n.getUsername(),
 																	 n.getPassword()));
 
@@ -410,22 +410,23 @@ public class loadCSV
 				}
 			}
 
-			System.out.println("DEBUG OUTPUT: indexOfPartCol = " + indexOfPartCol);
+			//System.out.println("DEBUG OUTPUT: indexOfPartCol = " + indexOfPartCol);
 
-			System.out.print("DEBUG OUTPUT: partParam1_list = ");
+			//System.out.print("DEBUG OUTPUT: partParam1_list = ");
+                        /*
 			for(String z : partParam1_list)
 			{
 				System.out.print(z + " ");
 			}
 			System.out.println("");
 
-			System.out.print("DEBUG OUTPUT: partParam2_list = ");
+			//System.out.print("DEBUG OUTPUT: partParam2_list = ");
 			for(String y : partParam2_list)
 			{
 				System.out.print(y + " ");
 			}
 			System.out.println("");
-
+                        */
 			Reader in = new FileReader(file);
 			Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(delimiter).parse(in);
 
@@ -510,7 +511,7 @@ public class loadCSV
 
 			try
 			{
-				conn = DriverManager.getConnection( catalogNode.getHostname(),
+				conn = DriverManager.getConnection( catalogNode.getHostname() +"?useSSL=false",
 													catalogNode.getUsername(),
 													catalogNode.getPassword());
 
@@ -593,7 +594,7 @@ public class loadCSV
 
 		String value, dataType, temp, insertSQL;
 		final String UPDATESQL = ("UPDATE dtables SET partmtd=2, partcol='" + partitionColumnName + "', partparam1=? WHERE tname='" + tablename + "' AND nodeid=?");
-                System.out.println("updatesql: " + UPDATESQL);
+                //System.out.println("updatesql: " + UPDATESQL);
 		ArrayList<Connection> connection_list = new ArrayList<Connection>();
 		ArrayList<PreparedStatement> ps_list = new ArrayList<PreparedStatement>();
 		ArrayList<String> row = new ArrayList<String>();
@@ -615,7 +616,7 @@ public class loadCSV
 		//get data types
 		data_types = new ArrayList<String>(getDataTypes(nodes.get(0), tablename, numCols));
 
-		System.out.println("DEBUG OUTPUT: numCols = " + numCols);
+		//System.out.println("DEBUG OUTPUT: numCols = " + numCols);
 
 		insertSQL = buildPreparedStatementString(numCols, tablename);
 
@@ -634,7 +635,7 @@ public class loadCSV
 			{
 				try
 				{
-					connection_list.add(DriverManager.getConnection( n.getHostname(),
+					connection_list.add(DriverManager.getConnection( n.getHostname() + "?useSSL=false",
 																	 n.getUsername(),
 																	 n.getPassword()));
 
@@ -742,7 +743,7 @@ public class loadCSV
 
 			try
 			{
-				conn = DriverManager.getConnection( catalogNode.getHostname(),
+				conn = DriverManager.getConnection( catalogNode.getHostname() + "?useSSL=false",
 													catalogNode.getUsername(),
 													catalogNode.getPassword());
 
@@ -915,7 +916,7 @@ public class loadCSV
         catalogNode.setPassword(password);
         catalogNode.setDriver(driver);
 
-        System.out.println("DEBUG OUTPUT: CatalogDB [" + catalogNode.getHostname() + ", " + catalogNode.getUsername() + ", " + catalogNode.getPassword() + "]");
+        //System.out.println("DEBUG OUTPUT: CatalogDB [" + catalogNode.getHostname() + ", " + catalogNode.getUsername() + ", " + catalogNode.getPassword() + "]");
 		
 		fis.close();
 
@@ -943,7 +944,7 @@ public class loadCSV
 
 			br.close();
 
-			System.out.println("DEBUG OUTPUT: numberOfLines=" + numberOfLines); 
+			//System.out.println("DEBUG OUTPUT: numberOfLines=" + numberOfLines); 
 
 			return numberOfLines;
 		}
@@ -974,7 +975,7 @@ public class loadCSV
 				insertSQL += "?)"; 
 		}
 
-		System.out.println("DEBUG OUTPUT: insertSQL=" + insertSQL);
+		//System.out.println("DEBUG OUTPUT: insertSQL=" + insertSQL);
 
 		return insertSQL;
 	}
@@ -995,7 +996,7 @@ public class loadCSV
 
 		try
 		{
-			conn = DriverManager.getConnection(	targetNode.getHostname(),
+			conn = DriverManager.getConnection(	targetNode.getHostname() + "?useSSL=false",
 												targetNode.getUsername(),
 												targetNode.getPassword());
 
@@ -1015,12 +1016,12 @@ public class loadCSV
 				conn.close();
 
 			//DEBUG
-			System.out.println("DEBUG OUTPUT: column_names from [" + targetNode.getHostname() + "]");
+			//System.out.println("DEBUG OUTPUT: column_names from [" + targetNode.getHostname() + "]");
 
-			for(String s : column_names)
-				System.out.print(s + " ");
+			//for(String s : column_names)
+			//	System.out.print(s + " ");
 
-			System.out.println("");
+			//System.out.println("");
 
 			return column_names;
 		}
@@ -1047,7 +1048,7 @@ public class loadCSV
 
 		try
 		{
-			conn = DriverManager.getConnection(	targetNode.getHostname(),
+			conn = DriverManager.getConnection(	targetNode.getHostname() + "?useSSL=false",
 												targetNode.getUsername(),
 												targetNode.getPassword());
 
@@ -1066,12 +1067,12 @@ public class loadCSV
 				conn.close();
 
 			//DEBUG
-			System.out.println("DEBUG OUTPUT: data_types from [" + targetNode.getHostname() + "]");
+			//System.out.println("DEBUG OUTPUT: data_types from [" + targetNode.getHostname() + "]");
 
-			for(String s : data_types)
-				System.out.print(s + " ");
+			//for(String s : data_types)
+			//	System.out.print(s + " ");
 
-			System.out.println("");
+			//System.out.println("");
 
 			return data_types;
 		}
