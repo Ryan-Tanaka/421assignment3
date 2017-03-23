@@ -1,0 +1,3 @@
+tname	nodedriver	nodeurl	nodeuser	nodepasswd	partmtd	nodeid	partcol	partparam1	partparam2
+ORDERS	com.mysql.jdbc.Driver	jdbc:mysql://localhost:3306/ryan2	db2inst1	mypasswd	2	1	O_ORDERKEY	2	 NULL
+ORDERS	com.mysql.jdbc.Driver	jdbc:mysql://localhost:3306/ryan3	db2inst1	mypasswd	2	2	O_ORDERKEY	2	 NULL

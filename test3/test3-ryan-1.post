@@ -1,0 +1,10 @@
+#!/bin/bash
+
+mysql -u db2inst1 -pmypasswd ryan1 < test3-ryan-1.post.catalog.sql 1> test3-ryan-1.post.catalogValues
+
+mysql -u db2inst1 -pmypasswd ryan2 < test3-ryan-1.post.inserted.sql 1> test3-ryan-1.post.ryan2Values
+mysql -u db2inst1 -pmypasswd ryan3 < test3-ryan-1.post.inserted.sql 1> test3-ryan-1.post.ryan3Values
+
+mysqladmin -u db2inst1 -pmypasswd drop ryan1
+mysqladmin -u db2inst1 -pmypasswd drop ryan2
+mysqladmin -u db2inst1 -pmypasswd drop ryan3
