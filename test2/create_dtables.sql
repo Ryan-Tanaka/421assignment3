@@ -1,0 +1,10 @@
+CREATE TABLE dtables(tname char(32), 
+   nodedriver char(64), 
+   nodeurl char(128), 
+   nodeuser char(16), 
+   nodepasswd char(16), 
+   partmtd int, 
+   nodeid int, 
+   partcol char(32), 
+   partparam1 char(32),
+   partparam2 char(32));
