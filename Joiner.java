@@ -65,10 +65,10 @@ public class Joiner implements Runnable
 
 
 			//alter DDL to say "create temporary table" instead of "create table"
-			create = create.replaceAll("CREATE", "CREATE TEMPORARY");
-			create = create.replaceAll(table1Name, newTable1Name);
+			create = create.replaceFirst("CREATE", "CREATE TEMPORARY");
+			create = create.replaceFirst(table1Name, newTable1Name);
 
-			//System.out.println("create temp: " + create);
+			//System.out.println("create temp: " + create.trim().replaceAll("\n ", ""));
 			ps2Test = conn2Test.prepareStatement(create); //create temporary table in the second node 
 			ps2Test.executeUpdate();
 
@@ -98,7 +98,7 @@ public class Joiner implements Runnable
 				values += colNames.get(i);
 				if(i < numCols - 1)
 				{
-					values += ", ";
+					values += ",";
 				}
 			}
 
@@ -131,7 +131,7 @@ public class Joiner implements Runnable
 
 				//System.out.println(temp);
 				//System.out.println(values);
-				String insert = "INSERT INTO " + newTable1Name + "(" + values + ") Values(" + temp + ")";
+				String insert = "INSERT INTO " + newTable1Name + " (" + values + ") Values(" + temp + ")";
 				//System.out.println(insert);
 				stmt2.executeUpdate(insert);
 				temp = "";
@@ -180,7 +180,8 @@ public class Joiner implements Runnable
 		}
 		catch(SQLException sqle)
 		{
-			//printSQLException(sqle);
+			printSQLException(sqle);
+                        sqle.printStackTrace();
 			System.out.println("failure at " + node1.getHostname() + " or " + node2.getHostname());		
 		}
 	}
