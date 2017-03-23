@@ -328,10 +328,14 @@ public class runSQL
 					}
 				}
 			}
-			catch(SQLException sqle)
-			{
-				printSQLException(sqle);
-			}
+                        catch(Exception e)
+                        {
+			    e.printStackTrace();
+                        }
+			//catch(SQLException sqle)
+			//{
+		        //	printSQLException(sqle);
+			//}
 		}
 	}
 
