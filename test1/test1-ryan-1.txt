@@ -1,0 +1,2 @@
+Test 1: Execute runDDL that will perform the given DDL on nodes ryan2 and ryan3. ryan1.dtables will be properly updated
+and display information about each node. ryan2.ORDERS and ryan3.ORDERS should exists and have no rows in them. 
