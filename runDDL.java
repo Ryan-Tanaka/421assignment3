@@ -12,7 +12,7 @@ public class runDDL
 	private static int numNodes;
     private static String catalogddl = "CREATE TABLE IF NOT EXISTS dtables(tname char(32), nodedriver char(64), nodeurl char(128), nodeuser char(16), nodepasswd char(16), partmtd int, nodeid int, partcol char(32), partparam1 char(32), partparam2 char(32))"; 
     
-	public static void executeRunDDL(String[] args) throws InterruptedException
+	public static void executeRunDDL(String[] args) throws InterruptedException, SQLException
 	{
     	String hostname, username, password, driver;
     	Properties connProps = new Properties();
@@ -60,31 +60,18 @@ public class runDDL
                 driver   = connProps.getProperty("catalog.driver");
 
     			nodes[0] = new node(hostname, username, password, 0, driver);
-
-                /**
-                * This try catch block will check whether or not the table already exists, since DERBY does not support
-                * IF NOT EXISTS in DDL. If Derby supported the NOT EXISTS statement, then I would not use nested try catch blocks. 
-                */
-                /*
                 try
                 {
-                    conn = DriverManager.getConnection(hostname + ";create=true", username, password);
+                    conn = DriverManager.getConnection(hostname + "?useSSL=false", username, password);
+                    conn.setAutoCommit(false);
                     s = conn.createStatement();
                     s.execute(catalogddl);
                     conn.commit(); 
                 }
                 catch(SQLException sqle)
                 {
-                    if(sqle.getSQLState().equals("X0Y32"))
-                    {
-                        //if the table exists, we do nothing and resume at the end of THIS catch block
-                    }
-                    else
-                    {
-                        throw sqle;  
-                    }
+                    throw sqle;  
                 }
-                */
                 
     			for(int i = 1; i < nodes.length; i++)
     			{
