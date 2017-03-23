@@ -1,0 +1,8 @@
+#!/bin/bash
+mysqladmin -u db2inst1 -pmypasswd drop ryan1
+mysqladmin -u db2inst1 -pmypasswd drop ryan2
+mysqladmin -u db2inst1 -pmypasswd drop ryan3
+
+mysqladmin -u db2inst1 -pmypasswd create ryan1
+mysqladmin -u db2inst1 -pmypasswd create ryan2
+mysqladmin -u db2inst1 -pmypasswd create ryan3

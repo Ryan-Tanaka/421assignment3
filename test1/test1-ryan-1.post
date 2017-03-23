@@ -1,0 +1,8 @@
+#!/bin/bash
+
+mysql -u db2inst1 -pmypasswd ryan1 < test1-ryan-1.post.sql 1> test1-ryan-1.post.dbValues
+
+mysqladmin -u db2inst1 -pmypasswd drop ryan1
+mysqladmin -u db2inst1 -pmypasswd drop ryan2
+mysqladmin -u db2inst1 -pmypasswd drop ryan3
+
