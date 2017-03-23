@@ -1,0 +1,4 @@
+ORDERS,com.mysql.jdbc.Driver,jdbc:mysql://localhost:3306/ryan2,db2inst1,mypasswd,1,2,O_ORDERKEY,0,30 
+ORDERS,com.mysql.jdbc.Driver,jdbc:mysql://localhost:3306/ryan3,db2inst1,mypasswd,1,3,O_ORDERKEY,30,101
+LINEITEM,com.mysql.jdbc.Driver,jdbc:mysql://localhost:3306/ryan4,db2inst1,mypasswd,1,4,L_ORDERKEY,0,30
+LINEITEM,com.mysql.jdbc.Driver,jdbc:mysql://localhost:3306/ryan5,db2inst1,mypasswd,1,5,L_ORDERKEY,30,101

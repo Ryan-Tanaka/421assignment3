@@ -1,0 +1,28 @@
+#!/bin/bash
+
+mysqladmin -u db2inst1 -pmypasswd drop ryan1
+mysqladmin -u db2inst1 -pmypasswd drop ryan2
+mysqladmin -u db2inst1 -pmypasswd drop ryan3
+mysqladmin -u db2inst1 -pmypasswd drop ryan4
+mysqladmin -u db2inst1 -pmypasswd drop ryan5
+
+mysqladmin -u db2inst1 -pmypasswd create ryan1
+mysqladmin -u db2inst1 -pmypasswd create ryan2
+mysqladmin -u db2inst1 -pmypasswd create ryan3
+mysqladmin -u db2inst1 -pmypasswd create ryan4
+mysqladmin -u db2inst1 -pmypasswd create ryan5
+
+mysql -u db2inst1 -pmypasswd ryan1 < create_dtables.sql
+mysql -u db2inst1 -pmypasswd ryan1 < fill_dtables.sql
+
+mysql -u db2inst1 -pmypasswd ryan2 < create_orders.sql  
+mysql -u db2inst1 -pmypasswd ryan2 < fill_ryan2.sql
+
+mysql -u db2inst1 -pmypasswd ryan3 < create_orders.sql  
+mysql -u db2inst1 -pmypasswd ryan3 < fill_ryan3.sql
+
+mysql -u db2inst1 -pmypasswd ryan4 < create_lineitem.sql  
+mysql -u db2inst1 -pmypasswd ryan4 < fill_ryan4.sql
+
+mysql -u db2inst1 -pmypasswd ryan5 < create_lineitem.sql  
+mysql -u db2inst1 -pmypasswd ryan5 < fill_ryan5.sql

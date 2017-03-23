@@ -1,0 +1,17 @@
+#!/bin/bash
+
+mysqladmin -u db2inst1 -pmypasswd create ryan6
+
+mysql -u db2inst1 -pmypasswd ryan6 < create_orders.sql
+mysql -u db2inst1 -pmypasswd ryan6 < create_lineitem.sql
+
+mysql -u db2inst1 -pmypasswd ryan6 < fill_ryan2.sql
+mysql -u db2inst1 -pmypasswd ryan6 < fill_ryan3.sql
+
+mysql -u db2inst1 -pmypasswd ryan6 < fill_ryan4.sql
+mysql -u db2inst1 -pmypasswd ryan6 < fill_ryan5.sql
+
+mysql -u db2inst1 -pmypasswd ryan6 < test4-ryan-1.post.sql 1> test4-ryan-1.exp 
+
+mysqladmin -u db2inst1 -pmypasswd drop ryan6
+

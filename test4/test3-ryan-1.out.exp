@@ -1,0 +1,3 @@
+[jdbc:mysql://localhost:3306/ryan1]: catalog updated
+[jdbc:mysql://localhost:3306/ryan2]: 50 rows inserted
+[jdbc:mysql://localhost:3306/ryan3]: 50 rows inserted
