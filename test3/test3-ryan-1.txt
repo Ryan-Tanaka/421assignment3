@@ -1,0 +1,10 @@
+Test 3: This test will execute the loadCSV portion of the program. It will test loading a hash partition. The test pre-script 
+sets up dtables, and executes the DDL on the two databases where the csv will be loaded to. 
+
+Instructions: Execute the following
+
+./test3-ryan-1.pre
+cd ..
+./run.sh ./test3/test3-ryan-1.cfg ./test3/test3-ryan-1.csv 
+./test3-ryan-1.post
+

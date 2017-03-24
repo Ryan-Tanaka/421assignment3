@@ -1,0 +1,10 @@
+Test 4: This test will execute the runSQL portion of the program. It will execute a query that requires a parallel join. The test pre-script 
+sets up dtables, and executes the DDL on the two databases, and pre-loads test data into the tables.  
+
+Instructions: Execute the following
+
+./test4-ryan-1.pre
+cd ..
+./run.sh ./test4/test4-ryan-1.cfg ./test4/test4-ryan-1.sql 
+./test4-ryan-1.post
+

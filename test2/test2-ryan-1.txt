@@ -1,0 +1,9 @@
+Test 2: This test will execute the loadCSV portion of the program. It will test loading a range partition. The test pre-script 
+sets up dtables, and executes the DDL on the two databases where the csv will be loaded to.
+
+Instructions: Execute the following
+
+./test2-ryan-1.pre
+cd ..
+./run.sh ./test2/test2-ryan-1.cfg ./test2/test2-ryan-1.csv 
+./test2-ryan-1.post

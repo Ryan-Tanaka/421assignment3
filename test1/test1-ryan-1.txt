@@ -1,2 +1,11 @@
 Test 1: Execute runDDL that will perform the given DDL on nodes ryan2 and ryan3. ryan1.dtables will be properly updated
-and display information about each node. ryan2.ORDERS and ryan3.ORDERS should exists and have no rows in them. 
+and display information about each node. ryan2.ORDERS and ryan3.ORDERS should exists and have no rows in them. dtables
+will not exist prior to running the program. The program will create dtables.
+
+Instructions: Execute the following
+
+./test1-ryan-1.pre
+cd ..
+./run.sh ./test1/test1-ryan-1.cfg ./test1/test1-ryan-1.sql 
+./test1-ryan-1.post
+
